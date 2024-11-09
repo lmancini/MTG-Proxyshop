@@ -234,6 +234,28 @@ def get_card_search(
             error=data, response=res, **{
                 'card_name': card_name, 'card_set': card_set, 'lang': lang
             })
+
+    if False:
+        card_set = None
+        lang = "it"
+        res = requests.get(
+            url=ScryURL.API.Cards.Search.with_query({
+                'q': f'!"{card_name}"'
+                    f' lang:{lang}'
+                    f"{f' set:{card_set.lower()}' if card_set else ''}",
+                **kwargs
+            }), headers=scryfall_http_header)
+        data2 = res.json()
+
+        if data2.get('object') != 'error':
+            data['data'][0]['name'] = data2['data'][0]['printed_name']
+            data['data'][0]['oracle_text'] = data2['data'][0]['printed_text']
+            data['data'][0]['lang'] = data2['data'][0]['lang']
+            data['data'][0]['type_line'] = data2['data'][0]['printed_type_line']
+
+            if 'flavor_text' in data2['data'][0]:
+                data['data'][0]['flavor_text'] = data2['data'][0]['flavor_text']
+
     for c in data.get('data', []):
         if is_playable_card(c):
             return c
